@@ -1,5 +1,5 @@
 //
-//  ViewController.swift
+//  WebViewController.swift
 //  Easy-Browser
 //
 //  Created by Ashutosh Purushottam on 4/10/16.
@@ -11,11 +11,11 @@ import WebKit
 
 
 
-class ViewController: UIViewController, WKNavigationDelegate {
+class WebViewController: UIViewController, WKNavigationDelegate {
     
     var webView: WKWebView!
     var progressView: UIProgressView!
-    var websites = ["apple.com", "hackingwithswift.com"]
+    var webSite: String!
     
     override func loadView()
     {
@@ -27,19 +27,21 @@ class ViewController: UIViewController, WKNavigationDelegate {
     override func viewDidLoad()
     {
         super.viewDidLoad()
-        let url = NSURL(string: "https://" + websites[0])!
+        let url = NSURL(string: "https://" + webSite)!
         webView.loadRequest(NSURLRequest(URL: url))
         // allows users to swipe from the left or right edge to move backward or forward in their web browsing
         webView.allowsBackForwardNavigationGestures = true
         // add button to the navigation bar
-        navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Open", style: .Plain, target: self, action: "openTapped")
         progressView = UIProgressView(progressViewStyle: .Default)
         progressView.sizeToFit()
-        let progressButton = UIBarButtonItem(customView: progressView)
         
+        // navigation bar item
+        navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .Cancel, target: self, action: "backTapped")
+        
+        // set toolbar at the bottom of the scree
+        let progressButton = UIBarButtonItem(customView: progressView)
         let spacer = UIBarButtonItem(barButtonSystemItem: .FlexibleSpace, target: nil, action: nil)
         let refresh = UIBarButtonItem(barButtonSystemItem: .Refresh, target: webView, action: "reload")
-        
         toolbarItems = [progressButton, spacer, refresh]
         navigationController?.toolbarHidden = false
         
@@ -53,48 +55,18 @@ class ViewController: UIViewController, WKNavigationDelegate {
         progressView.progress = Float(webView.estimatedProgress)
     }
     
-    func openTapped()
-    {
-        let uc = UIAlertController(title: "Open Page..", message: nil, preferredStyle: .ActionSheet)
-        for website in websites
-        {
-            uc.addAction(UIAlertAction(title: website, style: .Default, handler: openPage))
-        }
-        presentViewController(uc, animated: true, completion: nil)
-    }
-    
-    func openPage(action: UIAlertAction)
-    {
-        let url = NSURL(string: "https://" + action.title!)!
-        webView.loadRequest(NSURLRequest(URL: url))
-    }
     
     func refreshTapped()
     {
         webView.reload()
     }
     
-    func webView(webView: WKWebView, decidePolicyForNavigationAction navigationAction: WKNavigationAction, decisionHandler: (WKNavigationActionPolicy) -> Void)
+    func backTapped()
     {
-        let url = navigationAction.request.URL
-        if let host = url!.host
-        {
-            for website in websites
-            {
-                if host.rangeOfString(website) != nil
-                {
-                    decisionHandler(.Allow)
-                    return
-                }
-            }
-
-        }
-        
-        decisionHandler(.Cancel)
+        webView.removeObserver(self, forKeyPath: "estimatedProgress", context: nil)
+        dismissViewControllerAnimated(true, completion: nil)
     }
     
-
-
 
 }
 
