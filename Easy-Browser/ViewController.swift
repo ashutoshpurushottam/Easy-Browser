@@ -7,18 +7,30 @@
 //
 
 import UIKit
+import WebKit
 
-class ViewController: UIViewController {
 
-    override func viewDidLoad() {
+
+class ViewController: UIViewController, WKNavigationDelegate {
+    
+    var webView: WKWebView!
+    
+    override func loadView()
+    {
+        webView = WKWebView()
+        webView.navigationDelegate = self
+        view = webView
+    }
+
+    override func viewDidLoad()
+    {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        let url = NSURL(string: "https://www.hackingwithswift.com")!
+        webView.loadRequest(NSURLRequest(URL: url))
+        // allows users to swipe from the left or right edge to move backward or forward in their web browsing
+        webView.allowsBackForwardNavigationGestures = true
     }
 
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
 
 
 }
